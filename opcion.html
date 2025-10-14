@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Opción de Compra o Alquiler</title>
+  <link rel="stylesheet" href="ESTILOS/E6.css">
+    <link rel="stylesheet" href="ESTILOS/E1.css">
+
+</head>
+
+  <!-- Encabezado -->
+  <header>
+    <div class="logo">BEAT HOUSE</div>
+    <nav>
+      <ul>
+        
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="#" id="btnChatbot">Contacto</a></li>
+        <li><a href="loguin.html">Iniciar sesión</a></li>
+      </ul>
+    </nav>
+  </header>
+
+<body>
+  <h2>¿Qué deseas hacer con tu instrumento?</h2>
+  <div class="opciones">
+    <button id="btn-compra">Comprar</button>
+    <button id="btn-alquiler">Alquilar</button>
+  </div>
+
+  <div id="detalle"></div>
+
+  <script>
+    const producto = JSON.parse(localStorage.getItem("productoSeleccionado"));
+    const detalle = document.getElementById("detalle");
+
+    document.getElementById("btn-compra").addEventListener("click", () => {
+      producto.tipo = "Compra";
+      producto.precioFinal = producto.precio; 
+      localStorage.setItem("productoSeleccionado", JSON.stringify(producto));
+      window.location.href = "pago.html";
+    });
+
+    document.getElementById("btn-alquiler").addEventListener("click", () => {
+      producto.tipo = "Alquiler";
+      producto.precioFinal = producto.precio * 0.6; // 40% descuento
+      producto.maxDias = 5;
+      producto.estado = "Segunda Mano";
+      localStorage.setItem("productoSeleccionado", JSON.stringify(producto));
+      detalle.innerHTML = `
+        <p><strong>Instrumento:</strong> ${producto.nombre}</p>
+        <p><strong>Precio con descuento:</strong> s/.${producto.precioFinal.toFixed(2)}</p>
+        <p><strong>Máximo de días de alquiler:</strong> ${producto.maxDias} días hábiles</p>
+        <p><strong>Condición:</strong> ${producto.estado}</p>
+        <button onclick="window.location.href='pago.html'">Continuar al pago</button>
+      `;
+    });
+  </script>
+</body>
+</html>

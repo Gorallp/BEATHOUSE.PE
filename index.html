@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beat House - Venta y Alquiler</title>
+  <link rel="stylesheet" href="ESTILOS/E1.css">
+  <link rel="stylesheet" href="ESTILOS/E4.css">
+</head>
+<script src="carrito.js"></script>
+
+<body>
+  <!-- Encabezado -->
+  <header>
+    <div class="logo">BEAT HOUSE</div>
+    <nav>
+      <ul>
+        
+        <li><a href="catalogo.html">Catálogo</a></li>
+        <li><a href="#" id="btnChatbot">Contacto</a></li>
+        <li><a href="loguin.html">Iniciar sesión</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Portada -->
+  <section class="hero" style="background-image: url(RECURSOS/fondo1.jpg);">
+    <h1 style="color: white;">Tu casa de la música</h1>
+    <p>Venta y alquiler de instrumentos nuevos y de segunda mano.</p>
+  </section>
+
+
+
+
+
+  <!-- Catálogo principal -->
+<section class="catalogo">
+  <h2>Instrumentos destacados</h2>
+  <div class="grid">
+    <!-- Producto 1 -->
+    <div class="producto">
+    <img src="RECURSOS/guitarra.png" alt="Guitarra Acústica" class="img-instrumento">
+    <h3>Guitarra Acústica</h3>
+    <p>Marca: Yamaha</p>
+    <p>Color: Natural</p>
+    <p class="precio">s/.250.00</p>
+    <button class="btn-carrito" 
+        data-nombre="Guitarra Acústica" 
+        data-precio="250"
+        data-marca="Yamaha"
+        data-color="Natural">
+    Añadir al carrito
+</button>
+    </div>
+
+
+    <!-- Producto 2 -->
+    <div class="producto">
+      <img src="RECURSOS/organo.jpg" alt="Teclado Digital" class="img-instrumento">
+      <h3>Teclado</h3>
+      <p>Marca: Casio</p>
+      <p>Color: Negro</p>
+      <p class="precio">s/.400.00</p>
+      <button class="btn-carrito" 
+        data-nombre="Guitarra Acústica" 
+        data-precio="250"
+        data-marca="Yamaha"
+        data-color="Natural">
+    Añadir al carrito
+</button>
+    </div>
+
+    <!-- Producto 3 -->
+    <div class="producto">
+      <img src="RECURSOS/bateria.jpg" alt="Batería Completa" class="img-instrumento">
+      <h3>Batería Completa</h3>
+      <p>Marca: Pearl</p>
+      <p>Color: Rojo</p>
+      <p class="precio">s/.1200.00</p>
+      <button class="btn-carrito" 
+        data-nombre="Guitarra Acústica" 
+        data-precio="250"
+        data-marca="Yamaha"
+        data-color="Natural">
+    Añadir al carrito
+</button>
+    </div>
+
+    <!-- Producto 4 -->
+    <div class="producto">
+      <img src="RECURSOS/violin.jpg" alt="Violín Clásico" class="img-instrumento">
+      <h3>Violín Clásico</h3>
+      <p>Marca: Stradivarius</p>
+      <p>Color: Marrón</p>
+      <p class="precio">s/.800.00</p>
+      <button class="btn-carrito" 
+        data-nombre="Guitarra Acústica" 
+        data-precio="250"
+        data-marca="Yamaha"
+        data-color="Natural">
+    Añadir al carrito
+</button>
+    </div>
+
+    <!-- Producto 5 -->
+    <div class="producto">
+      <img src="RECURSOS/saxo.jpg" alt="Saxofón Alto" class="img-instrumento">
+      <h3>Saxofón Alto</h3>
+      <p>Marca: Selmer</p>
+      <p>Color: Dorado</p>
+      <p class="precio">s/1500.00</p>
+      <button class="btn-carrito" 
+        data-nombre="Guitarra Acústica" 
+        data-precio="250"
+        data-marca="Yamaha"
+        data-color="Natural">
+    Añadir al carrito
+</button>
+    </div>
+  </div>
+
+  <script>
+  const botones = document.querySelectorAll(".btn-carrito");
+
+  botones.forEach(boton => {
+    boton.addEventListener("click", () => {
+      const producto = {
+        nombre: boton.getAttribute("data-nombre"),
+        precio: parseFloat(boton.getAttribute("data-precio")),
+        marca: boton.getAttribute("data-marca"),
+        color: boton.getAttribute("data-color")
+      };
+
+      localStorage.setItem("productoSeleccionado", JSON.stringify(producto));
+
+      // Redirigir a opción
+      window.location.href = "opcion.html";
+    });
+  });
+</script>
+
+</section>
+
+
+  <!-- Opciones de Categorías -->
+  <section class="categorias">
+    <h2>Explora por categorías</h2>
+    <div class="categorias-grid">
+      <a href="1cuerda.html" class="categoria">Cuerda</a>
+      <a href="2viento.html" class="categoria">Viento</a>
+      <a href="3percusion.html" class="categoria">Percusión</a>
+      <a href="4electrofonos.html" class="categoria">Electrófonos</a>
+    </div>
+  </section>
+
+
+
+
+
+<section class="services">
+  <h2>SERVICIOS – TALLERES</h2>
+  <ul>
+    <li>
+      <span><strong>Nivel Básico</strong><br>
+      Aprende desde cero a tocar tu instrumento favorito. 
+      Este nivel está pensado para principiantes que desean 
+      conocer las bases de lectura musical y técnica inicial.</span>
+      <button onclick="location.href='taller.html'">Inscribirme</button>
+    </li>
+    <li>
+      <span><strong>Nivel Intermedio</strong><br>
+      Perfecciona tu técnica, mejora tu expresión musical y 
+      comienza a interpretar piezas de dificultad media. 
+      Ideal para quienes ya tienen experiencia básica.</span>
+      <button onclick="location.href='taller.html'">Inscribirme</button>
+    </li>
+    <li>
+      <span><strong>Nivel Avanzado</strong><br>
+      Domina el instrumento, interpreta repertorio complejo 
+      y recibe preparación para presentaciones en vivo o 
+      audiciones profesionales.</span>
+      <button onclick="location.href='taller.html'">Inscribirme</button>
+    </li>
+  </ul>
+</section>
+
+
+<section id="brands" class="brands-section">
+  <h2>Marcas con las que trabajamos</h2>
+  <p class="brands-sub">Instrumentos y equipos de primeras marcas — nueva y segunda mano</p>
+
+  <div class="brands-grid" role="list" aria-label="Marcas de instrumentos">
+    <!-- Card 1 -->
+    <article class="brand-card" role="listitem" tabindex="0">
+      <img src="RECURSOS/yamaha.png" alt="Logo Yamaha" class="brand-logo">
+      <div class="brand-name">Yamaha</div>
+    </article>
+
+    <!-- Card 2 -->
+    <article class="brand-card" role="listitem" tabindex="0">
+      <img src="RECURSOS/Fender-Logo.png" alt="Logo Fender" class="brand-logo">
+      <div class="brand-name">Fender</div>
+    </article>
+
+    <!-- Card 3 -->
+    <article class="brand-card" role="listitem" tabindex="0">
+      <img src="RECURSOS/gidson.jpg" alt="Logo Gibson" class="brand-logo">
+      <div class="brand-name">Gibson</div>
+    </article>
+
+    <!-- Card 4 -->
+    <article class="brand-card" role="listitem" tabindex="0">
+      <img src="RECURSOS/roland.png" alt="Logo Roland" class="brand-logo">
+      <div class="brand-name">Roland</div>
+    </article>
+
+    <!-- Card 5 -->
+    <article class="brand-card" role="listitem" tabindex="0">
+      <img src="RECURSOS/casio.png" alt="Logo Casio" class="brand-logo">
+      <div class="brand-name">Casio</div>
+    </article>
+
+    <!-- Card 6 -->
+    <article class="brand-card" role="listitem" tabindex="0">
+      <img src="RECURSOS/pearl.png" alt="Logo Pearl" class="brand-logo">
+      <div class="brand-name">Pearl</div>
+    </article>
+
+    <!-- Card 7 -->
+    <article class="brand-card" role="listitem" tabindex="0">
+      <img src="RECURSOS/iba.png" alt="Logo Ibanez" class="brand-logo">
+      <div class="brand-name">Ibanez</div>
+    </article>
+
+    <!-- Card 8 -->
+    <article class="brand-card" role="listitem" tabindex="0">
+      <img src="RECURSOS/shure.jpg" alt="Logo Shure" class="brand-logo">
+      <div class="brand-name">Shure</div>
+    </article>
+
+    <!-- Card 9 -->
+    <article class="brand-card" role="listitem" tabindex="0">
+      <img src="RECURSOS/korg.png" alt="Logo Korg" class="brand-logo">
+      <div class="brand-name">Korg</div>
+    </article>
+  </div>
+
+<!-- Chatbot flotante BeatBot -->
+<div id="chatbot-container" style="display:none;">
+  <div id="chatbot-box">
+    <div id="chatbot-header">🎧 BeatBot</div>
+    <div id="chatbot-messages">
+      <div class="bot-message">👋 ¡Hola! Soy BeatBot, tu asistente virtual de BeatHouse.<br>
+        ¿En qué puedo ayudarte hoy?
+      </div>
+      <div id="options">
+        <button class="option">🎵 Información sobre talleres</button>
+        <button class="option">🧾 Inscripción y boleta</button>
+        <button class="option">💳 Pagos y descuentos</button>
+        <button class="option">🕒 Horarios y fechas</button>
+        <button class="option">📞 Hablar con un asesor</button>
+      </div>
+    </div>
+    <div id="chatbot-input">
+      <input type="text" id="userInput" placeholder="Escribe tu mensaje aquí...">
+      <button id="sendBtn">Enviar</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script>
+const btnChatbot = document.getElementById('btnChatbot');
+const chatbotContainer = document.getElementById('chatbot-container');
+const chatbotMessages = document.getElementById('chatbot-messages');
+const userInput = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+const options = document.querySelectorAll('.option');
+
+// Mostrar / ocultar el chatbot al hacer clic
+btnChatbot.addEventListener('click', (e) => {
+  e.preventDefault();
+  chatbotContainer.style.display = chatbotContainer.style.display === 'block' ? 'none' : 'block';
+});
+
+// Agregar mensajes al chat
+function addMessage(text, sender = 'bot') {
+  const msg = document.createElement('div');
+  msg.classList.add(sender === 'bot' ? 'bot-message' : 'user-message');
+  msg.innerHTML = text;
+  chatbotMessages.appendChild(msg);
+  chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+}
+
+// Responder según la opción seleccionada
+options.forEach(option => {
+  option.addEventListener('click', () => {
+    const userChoice = option.textContent.trim();
+    addMessage(userChoice, 'user');
+
+    let response = '';
+    if (userChoice.includes('taller')) {
+      response = '🎶 Ofrecemos talleres de canto, guitarra, batería y producción musical. ¿Quieres que te envíe el catálogo completo?';
+      
+    } else if (userChoice.includes('boleta')) {
+      response = '🧾 Puedes generar tu boleta desde nuestra web al inscribirte. Recuerda tener tus datos actualizados.';
+    } else if (userChoice.includes('Pagos') || userChoice.includes('descuentos')) {
+      response = '💳 Aceptamos pagos por Yape, Plin y transferencia bancaria. ¿Deseas los números de cuenta?';
+    } else if (userChoice.includes('Horarios')) {
+      response = '🕒 Nuestros talleres inician cada lunes y sábado. ¿Te gustaría conocer el horario específico de alguno?';
+    } else if (userChoice.includes('asesor')) {
+      window.open('https://wa.me/51982788020', '_blank');
+      return;
+    }
+    addMessage(response);
+  });
+});
+
+// Enviar mensaje manualmente
+sendBtn.addEventListener('click', () => {
+  const text = userInput.value.trim();
+  if (!text) return;
+  addMessage(text, 'user');
+  userInput.value = '';
+
+  // Palabras clave conocidas
+  const keywords = ['taller', 'boleta', 'pago', 'horario', 'asesor', 'cuenta', 'inscripción'];
+  const known = keywords.some(k => text.toLowerCase().includes(k));
+
+  if (!known) {
+    addMessage('🤖 Parece una pregunta más específica. Te conectaré con un asesor humano...');
+    setTimeout(() => {
+      window.open('https://wa.me/51982788020', '_blank');
+    }, 2000);
+  } else {
+    addMessage('Gracias por tu consulta 😊. ¿Deseas más detalles o hablar con un asesor?');
+  }
+});
+</script>
+
+
+
+
+</section>
+
+
+
+
+
+
+  <!-- Pie de página -->
+<footer class="footer">
+  <div class="footer-container">
+
+    <!-- Logo y descripción -->
+    <div class="footer-about">
+      <h2 class="footer-logo">BEAT HOUSE</h2>
+      <p>Tu espacio musical para comprar, alquilar y aprender instrumentos. 
+      Marcas exclusivas y comerciales en un solo lugar.</p>
+    </div>
+
+    <!-- Contacto -->
+    <div class="footer-contact">
+      <h3>Contacto</h3>
+      <ul>
+        <li><strong>Email:</strong> contacto@beathouse.com</li>
+        <li><strong>Teléfono:</strong> +51 999 888 777</li>
+        <li><strong>Ubicación:</strong> Av. Los Músicos 123, Arequipa - Perú</li>
+      </ul>
+    </div>
+
+    <!-- Navegación rápida -->
+    <div class="footer-links">
+      <h3>Enlaces</h3>
+      <ul>
+        <li><a href="#">Catálogo</a></li>
+        <li><a href="#">Servicios y Talleres</a></li>
+        <li><a href="#">Sobre Nosotros</a></li>
+        <li><a href="#">Políticas de Privacidad</a></li>
+      </ul>
+    </div>
+
+    <!-- Redes sociales -->
+    <div class="footer-social">
+      <h3>Síguenos</h3>
+      <div class="social-icons">
+        <a href="#"><img src="icons/facebook.png" alt="Facebook"></a>
+        <a href="#"><img src="icons/instagram.png" alt="Instagram"></a>
+        <a href="#"><img src="icons/twitter.png" alt="Twitter"></a>
+        <a href="#"><img src="icons/youtube.png" alt="YouTube"></a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Línea final -->
+  <div class="footer-bottom">
+    <p>&copy; 2025 BEAT HOUSE. Todos los derechos reservados.</p>
+  </div>
+</footer>
+

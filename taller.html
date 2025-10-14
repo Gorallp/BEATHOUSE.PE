@@ -1,0 +1,160 @@
+<link rel="stylesheet" href="ESTILOS/E2.css">
+<link rel="stylesheet" href="ESTILOS/E1.css">
+
+<header>
+  <div class="logo">BEAT HOUSE</div>
+  <nav>
+    <ul>
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="#">Contacto</a></li>
+      <li><a href="loguin.html">Iniciar sesión</a></li>
+    </ul>
+  </nav>
+</header>
+
+<body>
+
+  <video autoplay muted loop id="videoFondo">
+    <source src="RECURSOS/fondov.mp4" type="video/mp4">
+  </video>
+
+  <section class="form-talleres">
+    <h2>Inscripción a Servicios – Talleres</h2>
+    <form id="formTaller">
+      <label for="nombre">Nombre completo:</label>
+      <input type="text" id="nombre" name="nombre" placeholder="Escribe tu nombre" required>
+
+      <label for="correo">Correo electrónico:</label>
+      <input type="email" id="correo" name="correo" placeholder="ejemplo@correo.com" required>
+
+      <label for="telefono">Teléfono:</label>
+      <input type="tel" id="telefono" name="telefono" placeholder="999-999-999" required>
+
+      <label for="taller">Selecciona el taller:</label>
+      <select id="taller" name="taller" required>
+        <option value="">-- Elige un taller --</option>
+        <option value="guitarra">Clases de Guitarra</option>
+        <option value="piano">Clases de Piano</option>
+        <option value="canto">Clases de Canto</option>
+        <option value="percusion">Percusión</option>
+      </select>
+
+      <label for="fecha">Fecha de inicio:</label>
+      <input type="date" id="fecha" name="fecha" required>
+
+      <label for="mensaje">Comentarios adicionales:</label>
+      <textarea id="mensaje" name="mensaje" rows="4" placeholder="Escribe aquí tus dudas o detalles..."></textarea>
+
+      <button type="submit">Inscribirme</button>
+    </form>
+
+    <!-- Contenedor donde aparecerá la boleta -->
+    <div id="resultado"></div>
+  </section>
+
+  <!-- Librerías -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+  <script>
+  document.getElementById("formTaller").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    // Captura de datos
+    const nombre = document.getElementById("nombre").value;
+    const correo = document.getElementById("correo").value;
+    const telefono = document.getElementById("telefono").value;
+    const taller = document.getElementById("taller").value;
+    const fecha = document.getElementById("fecha").value;
+
+    // Monto según taller
+    const precios = {
+      guitarra: 120,
+      piano: 150,
+      canto: 100,
+      percusion: 130
+    };
+    const monto = precios[taller] || 0;
+
+    // Mostrar boleta SIN eliminar el formulario
+    const boletaHTML = `
+      <div id="boleta" style="margin-top:40px; background:rgba(255,255,255,0.1); padding:20px; border-radius:10px; color:black;">
+      <h3>🎵 Boleta de Inscripción - BeatHouse</h3>
+      <p><b>RUC:</b> 20658794512</p>
+      <p><b>Nombre:</b> ${nombre}</p>
+      <p><b>Correo:</b> ${correo}</p>
+      <p><b>Teléfono:</b> ${telefono}</p>
+      <p><b>Taller elegido:</b> ${taller.charAt(0).toUpperCase() + taller.slice(1)}</p>
+      <p><b>Fecha de inicio:</b> ${fecha}</p>
+      <p><b>Monto a pagar:</b> S/. ${monto.toFixed(2)}</p>
+      <div id="qrContainer" style="margin-top:15px;"></div>
+      <button id="btnPDF" style="margin-top:20px; padding:10px 20px; border:none; border-radius:8px; background:#c4a03e; color:white; font-weight:bold; cursor:pointer;">
+        Descargar PDF
+      </button>
+    </div>
+
+    `;
+    document.getElementById("resultado").innerHTML = boletaHTML;
+
+    // Generar código QR
+    const qrData = `BeatHouse - ${nombre} - Taller: ${taller} - Monto: S/.${monto}`;
+    QRCode.toCanvas(document.createElement("canvas"), qrData, { width: 100 }, function (error, canvas) {
+      if (!error) {
+        document.getElementById("qrContainer").appendChild(canvas);
+      }
+    });
+
+    // Evento del botón PDF
+    document.getElementById("btnPDF").addEventListener("click", async () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      // Logo (asegúrate de tener RECURSOS/logo.png)
+      const logo = "RECURSOS/logo.png";
+      try {
+        const logoImg = await fetch(logo).then(r => r.blob()).then(b => new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(b);
+        }));
+
+        // Encabezado
+        doc.addImage(logoImg, "PNG", 10, 10, 25, 25);
+      } catch (e) {
+        console.warn("No se encontró el logo, pero el PDF se generará igual.");
+      }
+
+      doc.setFontSize(16);
+      doc.text("BeatHouse - Boleta de Inscripción", 50, 20);
+      doc.setFontSize(10);
+      doc.text("RUC: 20512345678", 50, 27);
+      doc.text("Dirección: Puente Bolognesi 207, Arequipa - Perú", 50, 33);
+      doc.text("Cel: +51 982 788 020 / www.beathouse.pe", 50, 39);
+
+      // Cuerpo
+      doc.setFontSize(12);
+      doc.text(`Cliente: ${nombre}`, 10, 60);
+      doc.text(`Correo: ${correo}`, 10, 68);
+      doc.text(`Teléfono: ${telefono}`, 10, 76);
+      doc.text(`Taller: ${taller}`, 10, 84);
+      doc.text(`Fecha de inicio: ${fecha}`, 10, 92);
+      doc.text(`Monto total: S/. ${monto.toFixed(2)}`, 10, 100);
+
+      // Agregar QR si existe
+      const qrCanvas = document.querySelector("#qrContainer canvas");
+      if (qrCanvas) {
+        const qrImg = qrCanvas.toDataURL("image/png");
+        doc.addImage(qrImg, "PNG", 150, 60, 40, 40);
+      }
+
+      // Pie de página
+      doc.setFontSize(10);
+      doc.text("Gracias por confiar en BeatHouse. ¡Te esperamos para vivir la música!", 10, 130);
+      doc.text("Documento generado automáticamente - No requiere firma ni sello.", 10, 136);
+
+      // Descargar PDF
+      doc.save(`Boleta_${nombre}.pdf`);
+    });
+  });
+  </script>
+</body>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BeatHouse - Pago</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="ESTILOS/E1.css">
+    <link rel="stylesheet" href="ESTILOS/E7.css">
+    <link rel="stylesheet" href="ESTILOS/E8.css">
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- jsPDF (para generar PDF) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- QRCode.js (generar QR para billetera) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <main class="container">
+    <header class="top">
+      <h1>BeatHouse — Pago</h1>
+      <p class="subtitle">Elige un método de pago y confirma tu compra</p>
+    </header>
+
+    <section class="methods">
+      <h2>Selecciona el método</h2>
+      <div class="btn-group">
+        <button class="method-btn" data-method="efectivo">Pago en Efectivo (Contra entrega)</button>
+        <button class="method-btn" data-method="billetera">Billetera Virtual (Yape / Plin)</button>
+        <button class="method-btn" data-method="deposito">Depósito / Transferencia</button>
+      </div>
+    </section>
+
+    <section id="form-area" class="form-area">
+      <!-- Aquí el JS inyecta el formulario -->
+      <div class="placeholder">
+        <p>Selecciona un método para ver el formulario</p>
+      </div>
+    </section>
+
+    <!-- Boleta / resumen -->
+    <aside id="receipt-area" class="receipt-area hidden">
+      <h3>Boleta de pago</h3>
+      <div id="receipt-content" class="receipt-content">
+        <!-- Generado dinámicamente -->
+      </div>
+      <div class="receipt-actions">
+        <button id="download-pdf">Descargar PDF</button>
+        <button id="close-receipt">Cerrar</button>
+      </div>
+    </aside>
+
+    <footer class="foot">
+      <small>BeatHouse • Plataforma musical — Pago seguro</small>
+    </footer>
+  </main>
+
+  <script src="pago.js"></script>
+</body>
+</html>

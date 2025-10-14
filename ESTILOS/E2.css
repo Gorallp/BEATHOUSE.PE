@@ -1,0 +1,90 @@
+/* Sección del formulario */
+.form-talleres {
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 30px;
+  background: rgba(255, 255, 255); /* fondo blanco semi-transparente */
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  text-align: left;
+  font-family: Arial, sans-serif;
+}
+
+/* Título */
+.form-talleres h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #5b3115; /* marrón elegante */
+  font-size: 1.8rem;
+}
+
+/* Labels */
+.form-talleres label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Inputs y select */
+.form-talleres input,
+.form-talleres select,
+.form-talleres textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+/* Efecto al enfocar */
+.form-talleres input:focus,
+.form-talleres select:focus,
+.form-talleres textarea:focus {
+  border-color: #c59e03; /* dorado */
+  outline: none;
+  box-shadow: 0 0 8px rgba(197, 158, 3, 0.6);
+}
+
+/* Botón */
+.form-talleres button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #5b3115, #c59e03);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.3s ease;
+}
+
+/* Hover del botón */
+.form-talleres button:hover {
+  background: linear-gradient(135deg, #c59e03, #5b3115);
+  transform: scale(1.05);
+}
+
+#videoFondo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1; /* Envía el video detrás de todo */
+  filter: brightness(0.6); /* Oscurece un poco para que el texto resalte */
+}
+
+
+
+
+
+
+
+
+
