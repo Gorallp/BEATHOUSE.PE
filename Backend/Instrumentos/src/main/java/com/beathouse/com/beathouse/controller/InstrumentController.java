@@ -62,6 +62,23 @@ public class InstrumentController {
         return service.update(id, instrument);
     }
 
+    @PutMapping(path = "/{id}/multipart", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public InstrumentEntity updateMultipart(
+            @PathVariable Long id,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "price", required = false) BigDecimal price,
+            @RequestParam(value = "category", required = false) String category,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
+        InstrumentEntity updated = new InstrumentEntity();
+        updated.setName(name);
+        updated.setDescription(description);
+        updated.setPrice(price);
+        updated.setCategory(category);
+        return service.update(id, updated, image);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {

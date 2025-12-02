@@ -15,6 +15,7 @@
     .form-row input[type=text], .form-row input[type=number], textarea { padding:8px; border:1px solid #ddd; border-radius:6px; width:100%; }
     .form-col { flex:1 1 220px; min-width:180px; }
     .btn { background:#ff6b6b; color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
+    .btn.success { background: #10b981; }
     .btn.secondary { background:#fff; color:#374151; border:1px solid #e5e7eb; }
     .btn.small { padding:6px 8px; font-size:0.9rem; border-radius:6px; }
     .btn.danger { background:#ef4444; }
@@ -52,13 +53,16 @@
         </div>
         <div style="margin-top:8px; display:flex; gap:12px; align-items:center;">
           <input type="file" id="image" name="image" accept="image/*">
-          <button class="btn" type="submit">Crear instrumento</button>
+          <button class="btn success" type="submit">Crear instrumento</button>
         </div>
       </form>
     </div>
 
     <div class="panel">
       <h2>Listado de instrumentos</h2>
+      <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+        <button id="btnOpenCreateModal" class="btn success">Nuevo instrumento</button>
+      </div>
       <div>
         <table id="instrumentsTable">
           <thead>
@@ -94,6 +98,10 @@
         <div style="margin-top:8px">
           <label>Descripción</label>
           <textarea id="editDescription" rows="3" style="width:100%"></textarea>
+        </div>
+        <div style="margin-top:8px">
+          <label>Imagen (opcional, reemplaza la existente)</label>
+          <input id="editImage" type="file" accept="image/*" />
         </div>
         <div class="actions">
           <button class="btn secondary" id="btnCancelEdit">Cancelar</button>
@@ -189,8 +197,23 @@
         document.getElementById('editCategory').value = i.category || '';
         document.getElementById('editDescription').value = i.description || '';
         document.getElementById('modalBackdrop').style.display = 'flex';
+        document.getElementById('modalTitle').textContent = 'Editar instrumento';
+        document.getElementById('btnSaveEdit').textContent = 'Guardar';
       }).catch(err => showMessage('Error fetching instrument: '+err.message,'error'));
     }
+
+    // open modal for creating a new instrument
+    document.getElementById('btnOpenCreateModal').addEventListener('click', function(){
+      document.getElementById('editId').value = '';
+      document.getElementById('editName').value = '';
+      document.getElementById('editPrice').value = '';
+      document.getElementById('editCategory').value = '';
+      document.getElementById('editDescription').value = '';
+      document.getElementById('editImage').value = '';
+      document.getElementById('modalTitle').textContent = 'Crear instrumento';
+      document.getElementById('btnSaveEdit').textContent = 'Crear';
+      document.getElementById('modalBackdrop').style.display = 'flex';
+    });
 
     document.getElementById('btnCancelEdit').addEventListener('click', function(){
       document.getElementById('modalBackdrop').style.display = 'none';
@@ -198,28 +221,33 @@
 
     document.getElementById('btnSaveEdit').addEventListener('click', async function(){
       const id = document.getElementById('editId').value;
-      const payload = {
-        id: Number(id),
-        name: document.getElementById('editName').value,
-        description: document.getElementById('editDescription').value,
-        price: Number(document.getElementById('editPrice').value),
-        category: document.getElementById('editCategory').value,
-        // imageUrl left untouched here; image updates currently via create flow or separate endpoint
-      };
+      const fd = new FormData();
+      fd.append('name', document.getElementById('editName').value || '');
+      fd.append('description', document.getElementById('editDescription').value || '');
+      const priceVal = document.getElementById('editPrice').value;
+      if(priceVal) fd.append('price', priceVal);
+      fd.append('category', document.getElementById('editCategory').value || '');
+      const file = document.getElementById('editImage').files[0];
+      if(file) fd.append('image', file);
+
       try{
-        const res = await fetch(`${apiBase}/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+        let res;
+        if(!id) {
+          // create
+          res = await fetch(`${apiBase}/multipart`, { method: 'POST', body: fd });
+        } else {
+          // update
+          res = await fetch(`${apiBase}/${id}/multipart`, { method: 'PUT', body: fd });
+        }
+
         if(!res.ok) {
           const txt = await res.text();
-          throw new Error(txt || 'Error updating');
+          throw new Error(txt || (id? 'Error updating' : 'Error creating'));
         }
-        const updated = await res.json();
-        showMessage('Instrumento actualizado: '+updated.name);
+        const data = await res.json();
+        showMessage((id? 'Instrumento actualizado: ' : 'Instrumento creado: ') + data.name);
         document.getElementById('modalBackdrop').style.display = 'none';
-        loadPage(currentPage);
+        loadPage(0);
       }catch(e){ showMessage(e.message || e,'error'); }
     });
 
