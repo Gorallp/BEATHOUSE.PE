@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  instrumentos:
+    build:
+      context: ./Backend/Instrumentos
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./Backend/Instrumentos/uploads:/app/uploads
+    networks:
+      - beathouse-net
+
+  usuarios:
+    build:
+      context: ./Backend/Usuarios
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./Backend/Usuarios/uploads:/app/uploads
+    networks:
+      - beathouse-net
+
+networks:
+  beathouse-net:
+    driver: bridge
