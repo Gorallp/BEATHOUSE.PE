@@ -1,0 +1,6 @@
+com\beathouse\model\User.class
+com\beathouse\service\UserService.class
+com\beathouse\Application.class
+com\beathouse\config\WebConfig.class
+com\beathouse\controller\UserController.class
+com\beathouse\repository\UserRepository.class
