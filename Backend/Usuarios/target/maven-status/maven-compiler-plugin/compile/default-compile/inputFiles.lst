@@ -1,6 +1,7 @@
-D:\Repositories\com.beathouse\src\main\java\com\beathouse\Application.java
-D:\Repositories\com.beathouse\src\main\java\com\beathouse\config\WebConfig.java
-D:\Repositories\com.beathouse\src\main\java\com\beathouse\controller\UserController.java
-D:\Repositories\com.beathouse\src\main\java\com\beathouse\model\User.java
-D:\Repositories\com.beathouse\src\main\java\com\beathouse\repository\UserRepository.java
-D:\Repositories\com.beathouse\src\main\java\com\beathouse\service\UserService.java
+D:\Repositories\BEATHOUSE.PE\Backend\Usuarios\src\main\java\com\beathouse\Application.java
+D:\Repositories\BEATHOUSE.PE\Backend\Usuarios\src\main\java\com\beathouse\config\WebConfig.java
+D:\Repositories\BEATHOUSE.PE\Backend\Usuarios\src\main\java\com\beathouse\controller\UserController.java
+D:\Repositories\BEATHOUSE.PE\Backend\Usuarios\src\main\java\com\beathouse\dto\LoginRequest.java
+D:\Repositories\BEATHOUSE.PE\Backend\Usuarios\src\main\java\com\beathouse\model\User.java
+D:\Repositories\BEATHOUSE.PE\Backend\Usuarios\src\main\java\com\beathouse\repository\UserRepository.java
+D:\Repositories\BEATHOUSE.PE\Backend\Usuarios\src\main\java\com\beathouse\service\UserService.java
