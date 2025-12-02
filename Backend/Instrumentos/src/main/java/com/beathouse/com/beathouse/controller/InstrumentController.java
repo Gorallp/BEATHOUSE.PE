@@ -27,7 +27,12 @@ public class InstrumentController {
     public org.springframework.data.domain.Page<InstrumentEntity> list(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
-        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        // default sort: newest first by createdAt
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(
+            page,
+            size,
+            org.springframework.data.domain.Sort.by("createdAt").descending()
+        );
         return service.findAll(pageable);
     }
 
