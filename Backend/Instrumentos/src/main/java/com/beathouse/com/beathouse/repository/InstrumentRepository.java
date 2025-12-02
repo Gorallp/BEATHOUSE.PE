@@ -7,5 +7,8 @@ import com.beathouse.com.beathouse.entity.InstrumentEntity;
 
 @Repository
 public interface InstrumentRepository extends JpaRepository<InstrumentEntity, Long> {
+	java.util.List<InstrumentEntity> findByIsDeletedFalse();
+
+	org.springframework.data.domain.Page<InstrumentEntity> findByIsDeletedFalse(org.springframework.data.domain.Pageable pageable);
 
 }
