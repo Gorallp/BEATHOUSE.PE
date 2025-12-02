@@ -1,5 +1,4 @@
 package com.beathouse.dto;
-
 import lombok.Data;
 
 @Data
