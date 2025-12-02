@@ -1,6 +1,37 @@
  
   <link rel="stylesheet" href="ESTILOS/E1.css">
   <link rel="stylesheet" href="ESTILOS/E4.css">
+  <style>
+    /* Pagination button styles */
+    #pagination { display:flex; justify-content:center; align-items:center; margin:22px 0; gap:12px; }
+    #pagination .pages { display:flex; gap:8px; }
+    .page-btn {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      color: #333;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+      box-shadow: 0 2px 4px rgba(16,24,40,0.04);
+    }
+    .page-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(16,24,40,0.08); }
+    .page-btn.active {
+      background: #ff6b6b; /* accent color */
+      border-color: #ff6b6b;
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(255,107,107,0.12);
+    }
+    .page-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    #pagination .summary { margin-left: 16px; color: #6b7280; font-size: 0.95rem; }
+    /* Small screens */
+    @media (max-width: 520px) {
+      .page-btn { padding: 6px 8px; font-size: 0.9rem; }
+      #pagination { flex-direction: column; gap:8px; }
+      #pagination .summary { margin-left: 0; font-size: 0.9rem; }
+    }
+  </style>
 
   <!-- Encabezado -->
   <header>
@@ -20,252 +51,104 @@
  <!-- Catálogo principal -->
 <section class="catalogo">
   <h2>Instrumentos destacados</h2>
-  <div class="grid">
-    <!-- FILA 1 -->
-    <div class="producto">
-      <img src="RECURSOS/guitarra.png" alt="Guitarra Acústica" class="img-instrumento">
-      <h3>Guitarra Acústica</h3>
-      <p>Marca: Yamaha</p>
-      <p>Color: Natural</p>
-      <p class="precio">s/.250.00</p>
-      <button class="btn-carrito" data-nombre="Guitarra Acústica" data-precio="250">Añadir al carrito</button>
-    </div>
+  <div id="instruments-grid" class="grid">
+    <!-- Instruments will be loaded here via AJAX -->
+  </div>
 
-    <div class="producto">
-      <img src="RECURSOS/piano 2.jpg" alt="Teclado Digital" class="img-instrumento">
-      <h3>Teclado Digital</h3>
-      <p>Marca: Casio</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.400.00</p>
-      <button class="btn-carrito" data-nombre="Teclado Digital" data-precio="400">Añadir al carrito</button>
-    </div>
+  <div id="pagination" class="pagination" aria-label="Paginación instrumentos">
+    <!-- Pagination controls injected here -->
+  </div>
 
-    <div class="producto">
-      <img src="RECURSOS/bateria.jpg" alt="Batería Completa" class="img-instrumento">
-      <h3>Batería Completa</h3>
-      <p>Marca: Pearl</p>
-      <p>Color: Rojo</p>
-      <p class="precio">s/.1200.00</p>
-      <button class="btn-carrito" data-nombre="Batería Completa" data-precio="1200">Añadir al carrito</button>
-    </div>
+  <script>
+  // Delegated cart handling for dynamically inserted product buttons
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.btn-carrito');
+    if (!btn) return;
+    const producto = {
+      nombre: btn.dataset.nombre,
+      precio: parseFloat(btn.dataset.precio),
+      marca: btn.dataset.marca || '',
+      color: btn.dataset.color || ''
+    };
+    localStorage.setItem('productoSeleccionado', JSON.stringify(producto));
+    window.location.href = 'opcion.html';
+  });
 
-    <div class="producto">
-      <img src="RECURSOS/violin.jpg" alt="Violín Clásico" class="img-instrumento">
-      <h3>Violín Clásico</h3>
-      <p>Marca: Stradivarius</p>
-      <p>Color: Marrón</p>
-      <p class="precio">s/.800.00</p>
-      <button class="btn-carrito" data-nombre="Violín Clásico" data-precio="800">Añadir al carrito</button>
-    </div>
+  // Fetch and render paginated instruments
+  const grid = document.getElementById('instruments-grid');
+  const pagination = document.getElementById('pagination');
+  let currentPage = 0;
+  const pageSize = 8;
 
-    <div class="producto">
-      <img src="RECURSOS/saxo.jpg" alt="Saxofón Alto" class="img-instrumento">
-      <h3>Saxofón Alto</h3>
-      <p>Marca: Selmer</p>
-      <p>Color: Dorado</p>
-      <p class="precio">s/.1500.00</p>
-      <button class="btn-carrito" data-nombre="Saxofón Alto" data-precio="1500">Añadir al carrito</button>
-    </div>
+  async function loadPage(page = 0) {
+    currentPage = page;
+    grid.innerHTML = '<p>Cargando...</p>';
+    try {
+      const res = await fetch(`http://localhost:8081/api/instruments?page=${page}&size=${pageSize}`);
+      if (!res.ok) throw new Error('Error cargando instrumentos');
+      const data = await res.json();
+      renderGrid(data.content || data.content, data.number, data.totalPages, data.size, data.totalElements);
+    } catch (err) {
+      grid.innerHTML = '<p>Error al cargar instrumentos.</p>';
+      console.error(err);
+    }
+  }
 
-    <div class="producto">
-      <img src="RECURSOS/flauta.jpeg" alt="Flauta Traversa" class="img-instrumento">
-      <h3>Flauta Traversa</h3>
-      <p>Marca: Gemeinhardt</p>
-      <p>Color: Plateado</p>
-      <p class="precio">s/.600.00</p>
-      <button class="btn-carrito" data-nombre="Flauta Traversa" data-precio="600">Añadir al carrito</button>
-    </div>
+  function renderGrid(items, pageNumber, totalPages, size, totalElements) {
+    if (!items || items.length === 0) {
+      grid.innerHTML = '<p>No hay instrumentos disponibles.</p>';
+      pagination.innerHTML = '';
+      return;
+    }
 
-    <!-- FILA 2 -->
-    <div class="producto">
-      <img src="RECURSOS/trompeta.jpg" alt="Trompeta Profesional" class="img-instrumento">
-      <h3>Trompeta Profesional</h3>
-      <p>Marca: Bach</p>
-      <p>Color: Dorado</p>
-      <p class="precio">s/.950.00</p>
-      <button class="btn-carrito" data-nombre="Trompeta Profesional" data-precio="950">Añadir al carrito</button>
-    </div>
+    grid.innerHTML = items.map(i => {
+      const img = i.imageUrl ? i.imageUrl : 'RECURSOS/guitarra.png';
+      const price = (i.price != null) ? ('s/.' + Number(i.price).toFixed(2)) : '';
+      return `
+        <div class="producto">
+          <img src="http://localhost:8081${img}" alt="${escapeHtml(i.name)}" class="img-instrumento">
+          <h3>${escapeHtml(i.name)}</h3>
+          <p>${escapeHtml(i.category || '')}</p>
+          <p class="precio">${price}</p>
+          <button class="btn-carrito" data-nombre="${escapeHtml(i.name)}" data-precio="${i.price}">Añadir al carrito</button>
+        </div>`;
+    }).join('');
 
-    <div class="producto">
-      <img src="RECURSOS/ukelele.jpg" alt="Ukelele Tenor" class="img-instrumento">
-      <h3>Ukelele Tenor</h3>
-      <p>Marca: Kala</p>
-      <p>Color: Marrón claro</p>
-      <p class="precio">s/.320.00</p>
-      <button class="btn-carrito" data-nombre="Ukelele Tenor" data-precio="320">Añadir al carrito</button>
-    </div>
+    // render pagination controls
+    let pagesHtml = '';
+    pagesHtml += `<button ${pageNumber===0? 'disabled': ''} data-page="${pageNumber-1}" class="page-btn">« Anterior</button>`;
+    // show up to 7 pages with current in center
+    const visible = 7;
+    let start = Math.max(0, pageNumber - Math.floor(visible/2));
+    let end = Math.min(totalPages, start + visible);
+    if (end - start < visible) start = Math.max(0, end - visible);
+    for (let p = start; p < end; p++) {
+      pagesHtml += `<button data-page="${p}" class="page-btn ${p===pageNumber? 'active': ''}">${p+1}</button>`;
+    }
+    pagesHtml += `<button ${pageNumber>=totalPages-1? 'disabled': ''} data-page="${pageNumber+1}" class="page-btn">Siguiente »</button>`;
 
-    <div class="producto">
-      <img src="RECURSOS/conga.jpg" alt="Congas Caribeñas" class="img-instrumento">
-      <h3>Congas Caribeñas</h3>
-      <p>Marca: LP</p>
-      <p>Color: Natural</p>
-      <p class="precio">s/.1100.00</p>
-      <button class="btn-carrito" data-nombre="Congas Caribeñas" data-precio="1100">Añadir al carrito</button>
-    </div>
+    pagination.innerHTML = `<div class="pages">${pagesHtml}</div><div class="summary">Mostrando ${Math.min((pageNumber*size)+1, totalElements)} - ${Math.min((pageNumber+1)*size, totalElements)} de ${totalElements}</div>`;
 
-    <div class="producto">
-      <img src="RECURSOS/armonica.jpg" alt="Armónica Blues" class="img-instrumento">
-      <h3>Armónica Blues</h3>
-      <p>Marca: Hohner</p>
-      <p>Color: Plateado</p>
-      <p class="precio">s/.180.00</p>
-      <button class="btn-carrito" data-nombre="Armónica Blues" data-precio="180">Añadir al carrito</button>
-    </div>
+    // attach click handlers
+    pagination.querySelectorAll('.page-btn').forEach(b => b.addEventListener('click', (ev) => {
+      const p = parseInt(ev.currentTarget.dataset.page, 10);
+      if (!isNaN(p)) loadPage(p);
+    }));
+  }
 
-    <div class="producto">
-      <img src="RECURSOS/bajo.jpg" alt="Bajo Eléctrico" class="img-instrumento">
-      <h3>Bajo Eléctrico</h3>
-      <p>Marca: Fender</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.950.00</p>
-      <button class="btn-carrito" data-nombre="Bajo Eléctrico" data-precio="950">Añadir al carrito</button>
-    </div>
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
-    <div class="producto">
-      <img src="RECURSOS/clarinete.png" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
+  // initial load
+  loadPage(0);
 
-     <div class="producto">
-      <img src="RECURSOS/arpa.jpg" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
-
-     <div class="producto">
-      <img src="RECURSOS/piano.jpg" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
-
-     <div class="producto">
-      <img src="RECURSOS/piano 2.jpg" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
-
-     <div class="producto">
-      <img src="RECURSOS/saxo.jpg" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
-
-     <div class="producto">
-      <img src="RECURSOS/trom.jpg" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
-
-     <div class="producto">
-      <img src="RECURSOS/saxo.jpg" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
-
-     <div class="producto">
-      <img src="RECURSOS/zelda.jpg" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
-
-     <div class="producto">
-      <img src="RECURSOS/tambor2.jpg" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
-
-     <div class="producto">
-      <img src="RECURSOS/cuba.jpg" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
-
-     <div class="producto">
-      <img src="RECURSOS/gui.jpg" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
-
-     <div class="producto">
-      <img src="RECURSOS/ovni xd.jpg" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
-
-     <div class="producto">
-      <img src="RECURSOS/trom.jpg" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
-
-     <div class="producto">
-      <img src="RECURSOS/clarinete.png" alt="Clarinete Clásico" class="img-instrumento">
-      <h3>Clarinete Clásico</h3>
-      <p>Marca: Buffet</p>
-      <p>Color: Negro</p>
-      <p class="precio">s/.700.00</p>
-      <button class="btn-carrito" data-nombre="Clarinete Clásico" data-precio="700">Añadir al carrito</button>
-    </div>
-
-      <script>
-  const botones = document.querySelectorAll(".btn-carrito");
-
-    botones.forEach(boton => {
-      boton.addEventListener("click", () => {
-        const producto = {
-          nombre: boton.getAttribute("data-nombre"),
-          precio: parseFloat(boton.getAttribute("data-precio")),
-          marca: boton.getAttribute("data-marca"),
-          color: boton.getAttribute("data-color")
-        };
-
-        localStorage.setItem("productoSeleccionado", JSON.stringify(producto));
-
-        // Redirigir a opción
-        window.location.href = "opcion.html";
-      });
-    });
   </script>
 
   <!-- Chatbot flotante BeatBot -->

@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin - Instrumentos</title>
+  <link rel="stylesheet" href="ESTILOS/E1.css">
+  <link rel="stylesheet" href="ESTILOS/E4.css">
+  <style>
+    body { padding: 20px; font-family: Arial, sans-serif; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    h1 { margin-bottom: 12px; }
+    .panel { background:#fff; padding:16px; border-radius:8px; box-shadow:0 6px 18px rgba(16,24,40,0.04); margin-bottom:18px; }
+    .form-row { display:flex; gap:12px; flex-wrap:wrap; }
+    .form-row input[type=text], .form-row input[type=number], textarea { padding:8px; border:1px solid #ddd; border-radius:6px; width:100%; }
+    .form-col { flex:1 1 220px; min-width:180px; }
+    .btn { background:#ff6b6b; color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
+    .btn.secondary { background:#fff; color:#374151; border:1px solid #e5e7eb; }
+    .btn.small { padding:6px 8px; font-size:0.9rem; border-radius:6px; }
+    .btn.danger { background:#ef4444; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { padding:8px 10px; border-bottom:1px solid #eef2f7; text-align:left; }
+    img.thumb { width:64px; height:48px; object-fit:cover; border-radius:6px; }
+    .actions button { margin-right:6px; }
+    .message { padding:8px 12px; border-radius:6px; margin-bottom:10px; }
+    .message.success { background:#ecfdf5; color:#065f46; }
+    .message.error { background:#ffebe9; color:#7f1d1d; }
+    .pagination { margin-top:12px; display:flex; gap:8px; align-items:center; }
+    /* Edit modal styles */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.4); display:none; align-items:center; justify-content:center; z-index:40; }
+    .modal { background:#fff; padding:16px; border-radius:10px; width:720px; max-width:95%; box-shadow:0 10px 30px rgba(2,6,23,0.2); }
+    .modal h3 { margin-top:0; }
+    .modal .row { display:flex; gap:12px; }
+    .modal .actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Administrar Instrumentos</h1>
+
+    <div class="panel">
+      <h2>Crear nuevo instrumento</h2>
+      <div id="msgBox"></div>
+      <form id="createForm">
+        <div class="form-row">
+          <div class="form-col"><input type="text" id="name" name="name" placeholder="Nombre" required></div>
+          <div class="form-col"><input type="text" id="category" name="category" placeholder="Categoría"></div>
+          <div class="form-col"><input type="number" step="0.01" id="price" name="price" placeholder="Precio" required></div>
+        </div>
+        <div style="margin-top:8px;">
+          <textarea id="description" name="description" rows="3" placeholder="Descripción" style="width:100%"></textarea>
+        </div>
+        <div style="margin-top:8px; display:flex; gap:12px; align-items:center;">
+          <input type="file" id="image" name="image" accept="image/*">
+          <button class="btn" type="submit">Crear instrumento</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Listado de instrumentos</h2>
+      <div>
+        <table id="instrumentsTable">
+          <thead>
+            <tr><th>ID</th><th>Imagen</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Acciones</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="adminPagination"></div>
+    </div>
+  </div>
+  
+  <!-- Edit Modal -->
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h3 id="modalTitle">Editar instrumento</h3>
+      <div>
+        <input type="hidden" id="editId">
+        <div class="row">
+          <div style="flex:1">
+            <label>Nombre</label>
+            <input id="editName" type="text" style="width:100%" />
+          </div>
+          <div style="width:180px">
+            <label>Precio</label>
+            <input id="editPrice" type="number" step="0.01" style="width:100%" />
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <label>Categoría</label>
+          <input id="editCategory" type="text" style="width:100%" />
+        </div>
+        <div style="margin-top:8px">
+          <label>Descripción</label>
+          <textarea id="editDescription" rows="3" style="width:100%"></textarea>
+        </div>
+        <div class="actions">
+          <button class="btn secondary" id="btnCancelEdit">Cancelar</button>
+          <button class="btn" id="btnSaveEdit">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiBase = 'http://localhost:8081/api/instruments'; // adjust if backend on another origin
+    const tableBody = document.querySelector('#instrumentsTable tbody');
+    const adminPagination = document.getElementById('adminPagination');
+    const msgBox = document.getElementById('msgBox');
+
+    let currentPage = 0;
+    const pageSize = 10;
+
+    function showMessage(text, type='success'){
+      msgBox.innerHTML = `<div class="message ${type==='error'? 'error':'success'}">${text}</div>`;
+      setTimeout(()=> msgBox.innerHTML='', 4000);
+    }
+
+    async function loadPage(page=0){
+      currentPage = page;
+      tableBody.innerHTML = '<tr><td colspan="6">Cargando...</td></tr>';
+      try{
+        const res = await fetch(`${apiBase}?page=${page}&size=${pageSize}`);
+        if(!res.ok) throw new Error('Error cargando instrumentos');
+        const data = await res.json();
+        renderTable(data.content || [], data.number, data.totalPages, data.size, data.totalElements);
+      }catch(e){
+        tableBody.innerHTML = `<tr><td colspan="6">Error: ${e.message}</td></tr>`;
+      }
+    }
+
+    function renderTable(items, pageNumber, totalPages){
+      if(!items || items.length===0){
+        tableBody.innerHTML = '<tr><td colspan="6">No hay instrumentos.</td></tr>';
+        adminPagination.innerHTML = '';
+        return;
+      }
+      tableBody.innerHTML = items.map(i => `
+        <tr>
+          <td>${i.id}</td>
+          <td><img class="thumb" src="${i.imageUrl?"http://localhost:8081"+i.imageUrl : 'RECURSOS/guitarra.png'}"/></td>
+          <td>${escapeHtml(i.name)}</td>
+          <td>${escapeHtml(i.category||'')}</td>
+          <td>${i.price!=null? ('s/.'+Number(i.price).toFixed(2)) : ''}</td>
+            <td class="actions">
+              <button data-id="${i.id}" class="btn small secondary btn-edit">Editar</button>
+              <button data-id="${i.id}" class="btn small danger btn-delete">Eliminar</button>
+            </td>
+        </tr>`).join('');
+
+      // pagination
+      let html = '';
+      if(pageNumber>0) html += `<button data-page="${pageNumber-1}" class="btn">Anterior</button>`;
+      html += ` <span> Página ${pageNumber+1} de ${totalPages} </span> `;
+      if(pageNumber < totalPages-1) html += `<button data-page="${pageNumber+1}" class="btn">Siguiente</button>`;
+      adminPagination.innerHTML = html;
+      adminPagination.querySelectorAll('button[data-page]').forEach(b => b.addEventListener('click', (ev)=> loadPage(parseInt(ev.currentTarget.dataset.page,10))));
+      // delete buttons
+        document.querySelectorAll('.btn-delete').forEach(b => b.addEventListener('click', deleteInstrument));
+        document.querySelectorAll('.btn-edit').forEach(b => b.addEventListener('click', openEdit));
+    }
+
+    function escapeHtml(str){ if(!str) return ''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+    async function deleteInstrument(ev){
+      const id = ev.currentTarget.dataset.id;
+      if(!confirm('Eliminar instrumento id '+id+'?')) return;
+      try{
+        const res = await fetch(`${apiBase}/${id}`, { method: 'DELETE' });
+        if(res.status===204){
+          showMessage('Instrumento eliminado');
+          loadPage(currentPage);
+        } else {
+          const txt = await res.text();
+          showMessage('Error al eliminar: '+txt, 'error');
+        }
+      }catch(e){ showMessage(e.message,'error'); }
+    }
+
+    // Edit flow
+    function openEdit(ev){
+      const id = ev.currentTarget.dataset.id;
+      // find row data from the table (or re-fetch single resource)
+      fetch(`${apiBase}/${id}`).then(r => r.json()).then(i => {
+        document.getElementById('editId').value = i.id;
+        document.getElementById('editName').value = i.name || '';
+        document.getElementById('editPrice').value = i.price || '';
+        document.getElementById('editCategory').value = i.category || '';
+        document.getElementById('editDescription').value = i.description || '';
+        document.getElementById('modalBackdrop').style.display = 'flex';
+      }).catch(err => showMessage('Error fetching instrument: '+err.message,'error'));
+    }
+
+    document.getElementById('btnCancelEdit').addEventListener('click', function(){
+      document.getElementById('modalBackdrop').style.display = 'none';
+    });
+
+    document.getElementById('btnSaveEdit').addEventListener('click', async function(){
+      const id = document.getElementById('editId').value;
+      const payload = {
+        id: Number(id),
+        name: document.getElementById('editName').value,
+        description: document.getElementById('editDescription').value,
+        price: Number(document.getElementById('editPrice').value),
+        category: document.getElementById('editCategory').value,
+        // imageUrl left untouched here; image updates currently via create flow or separate endpoint
+      };
+      try{
+        const res = await fetch(`${apiBase}/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if(!res.ok) {
+          const txt = await res.text();
+          throw new Error(txt || 'Error updating');
+        }
+        const updated = await res.json();
+        showMessage('Instrumento actualizado: '+updated.name);
+        document.getElementById('modalBackdrop').style.display = 'none';
+        loadPage(currentPage);
+      }catch(e){ showMessage(e.message || e,'error'); }
+    });
+
+    // Create form handling (multipart)
+    document.getElementById('createForm').addEventListener('submit', async function(e){
+      e.preventDefault();
+      const form = e.target;
+      const fd = new FormData();
+      fd.append('name', document.getElementById('name').value);
+      fd.append('description', document.getElementById('description').value || '');
+      fd.append('price', document.getElementById('price').value);
+      fd.append('category', document.getElementById('category').value || '');
+      const file = document.getElementById('image').files[0];
+      if(file) fd.append('image', file);
+
+      try{
+        const res = await fetch(`${apiBase}/multipart`, { method: 'POST', body: fd });
+        if(!res.ok) {
+          const txt = await res.text();
+          throw new Error(txt || 'Error creando');
+        }
+        const created = await res.json();
+        showMessage('Instrumento creado: '+created.name);
+        form.reset();
+        loadPage(0);
+      }catch(e){ showMessage(e.message || e,'error'); }
+    });
+
+    // initial load
+    loadPage(0);
+  </script>
+</body>
+</html>
